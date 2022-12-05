@@ -1,15 +1,17 @@
 #include <stdio.h>
+#include <assert.h>
 
 typedef char dirn;
 
-void rot(dirn *d, int way)
-// @requires d is a valid pointer to a direction
+void rot(dirn *d, char way)
+// @requires d is a valid pointer to a direction, way matches regex [ah]
 // @assigns d
 // @ensures the cursor rotates 90° clockwise or c/clockwise
     {
+    assert ((way == 'a') || (way == 'h'));
     switch (way)
 	{
-	case 1:
+	case 'a':
 	    // C/Clockwise
 	    switch (*d)
 		{
@@ -27,7 +29,7 @@ void rot(dirn *d, int way)
 		    break;
 		};
 	    break;
-	case -1:
+	case 'h':
 	    // Clockwise
 	    switch (*d)
 		{
@@ -45,8 +47,5 @@ void rot(dirn *d, int way)
 		    break;
 		};
 	    break;
-	default:
-	    printf("way must be 1 or -1\n");
-	    exit(5);
 	}
     }
