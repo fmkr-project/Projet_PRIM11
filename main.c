@@ -5,8 +5,9 @@
 
 #include "direction.h"
 #include "bucketmanager.h"
-#include "layer.h"
+
 #include "cursor.h"
+#include "parser.h"
 
 int main(int argc, char *argv[])
     {
@@ -41,7 +42,7 @@ int main(int argc, char *argv[])
 
 
 
-    rot(&direc, 1);
+    rot(&direc, 'a');
 
     // Buckets
     cstack cbucket = new_cstack(char2col('n'));
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
     
     ripolin(&cbucket, char2col('n'));
     printf("%d\n", cstack_len(cbucket));
-
+    parse("rhorpuuuokzn");
 
 
     return 0;
