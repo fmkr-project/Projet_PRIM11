@@ -131,3 +131,30 @@ void deop(astack *ab)
     {
     while (*ab != NULL) astack_sub(ab);
     }
+
+// Pixel operations
+pixel avpix(cstack cb, astack ab)
+    {
+    int avr = 0; int avg = 0; int avb = 0; int avo = 0;
+    int ccount = 0; int acount = 0;
+
+    while (cb != NULL)
+	{
+	ccount++;
+	avr += (cb->top).r; avg += (cb->top).g; avb += (cb->top).b;
+	cb = cb->next;
+	}
+    while (ab != NULL)
+	{
+	acount++;
+	avo += (ab->top);
+	ab = ab->next;
+	}
+    
+    pixel res;
+    res.col.r = avr/ccount;
+    res.col.g = avg/ccount;
+    res.col.b = avb/ccount;
+    res.al = avo/acount;
+    return res;
+    }

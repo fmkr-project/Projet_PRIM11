@@ -5,9 +5,10 @@
 
 #include "direction.h"
 #include "bucketmanager.h"
-
+#include "layer.h"
 #include "cursor.h"
 #include "parser.h"
+#include "debug.h"
 
 int main(int argc, char *argv[])
     {
@@ -31,12 +32,11 @@ int main(int argc, char *argv[])
     char buffer[256];
     fgets(buffer, 256, file);
     sscanf(buffer, "%d", &size);
-
     
     // Cursor position
-    int curx = 0; int cury = 0;
+    pos cur; cur.x = 0, cur.y = 0;
     // Last marked position
-    int lastx = 0; int lasty = 0;
+    pos last; last.x = 0; last.y = 0;
     // Cursor direction
     dirn direc = 'E';
 
@@ -50,13 +50,17 @@ int main(int argc, char *argv[])
     astack abucket = new_astack(0);
     deop(&abucket);
 
+    layer test = blank(size);
+
 
 
     
     ripolin(&cbucket, char2col('n'));
     printf("%d\n", cstack_len(cbucket));
-    parse("rhorpuuuokzn");
-
-
+    parse("rhorpuuuokznbwbrwbrbwbrw", size, &cur, &last, &direc, &cbucket, &abucket);
+    printf("%d\n", cstack_len(cbucket));
+    pixel d = avpix(cbucket, abucket);
+    printcolor(d.col);
+    
     return 0;
     }

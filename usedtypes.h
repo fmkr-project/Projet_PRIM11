@@ -1,4 +1,6 @@
-// Simple data structures
+#ifndef __TYPES
+#define __TYPES
+
 typedef unsigned char
 comp;
 
@@ -18,12 +20,10 @@ typedef struct pixel
     alpha al;
     } pixel;
 
-
-// Buckets & layers
-typedef struct layer* lstack;
-typedef struct layer
+typedef struct pos
     {
-    int size;
-    pixel **colors;
-    alpha **alphas;
-    } layer;
+    int x;
+    int y;
+    } pos;
+
+#endif
