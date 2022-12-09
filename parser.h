@@ -1,6 +1,6 @@
 #include <regex.h>
 
-void uniparse(char ltr)
+void uniparse(char ltr, int size, pos* cur, pos* last, dirn* d, cstack* cb, astack* ab)
     {
     char* str_of_ltr = calloc(2, sizeof(char));
     str_of_ltr[0] = ltr;
@@ -10,30 +10,31 @@ void uniparse(char ltr)
     // Colors regex
     regcomp(&expr, "[bcgmnrwy]", 0);
     if (regexec(&expr, str_of_ltr, 0, NULL, 0) == 0)
-	printf("color !\n");
+	ripolin(cb, char2col(ltr));
 
     // Alpha regex
     regcomp(&expr, "[ot]", 0);
     if (regexec(&expr, str_of_ltr, 0, NULL, 0) == 0)
-	printf("alpha !\n");
+	cover(ab, char2alp(ltr));
 
     // Rotation regex
     regcomp(&expr, "[ah]", 0);
     if (regexec(&expr, str_of_ltr, 0, NULL, 0) == 0)
-	printf("weeee !\n");
+	rot(d, ltr);
 
     // Non-regex actions
-
+    if (ltr == 'p') *last = *cur;
+    if (ltr == 'v') updatexy(cur, size, *d);
 
     regfree(&expr);
     }
 
-void parse(char* line)
+void parse(char* line, int size, pos* cur, pos* last, dirn* d, cstack* cb, astack* ab)
 // @requires line will not be freed
     {
     while (*line != '\0')
 	{
-	uniparse(*line);
+	uniparse(*line, size, cur, last, d, cb, ab);
 	line++;
 	}
     }
