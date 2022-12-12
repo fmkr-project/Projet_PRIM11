@@ -10,6 +10,9 @@
 #include "parser.h"
 #include "debug.h"
 
+
+int verbose = 0;
+
 int main(int argc, char *argv[])
     {
     if (argc != 2)
@@ -50,17 +53,22 @@ int main(int argc, char *argv[])
     astack abucket = new_astack(0);
     deop(&abucket);
 
-    layer test = blank(size);
+    lstack layers = blankstack(size);
+    ladd(&layers, blank(size), size);
+    ladd(&layers, blank(size), size);
+    printf("%d layer(s)\n",nofl(layers));
 
 
 
     
     ripolin(&cbucket, char2col('n'));
     printf("%d\n", cstack_len(cbucket));
-    parse("rhorpuuuokznbwbrwbrbwbrw", size, &cur, &last, &direc, &cbucket, &abucket);
+    parse("rhorpuuuokznbwbrwbrbwbrw", size, &cur, &last, &direc, &cbucket, &abucket, &layers);
     printf("%d\n", cstack_len(cbucket));
     pixel d = avpix(cbucket, abucket);
     printcolor(d.col);
     
     return 0;
     }
+
+// TODO : verbose mode
