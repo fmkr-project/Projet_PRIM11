@@ -24,22 +24,34 @@ int verbose = 0;
 
 int main(int argc, char *argv[])
     {
-    if (argc != 2)
+    char* out; char* path; FILE* file;
+    switch (argc)
 	{
-	fprintf(stderr, "use : %s < [file.ipi]\n", argv[0]);
-	exit(2);
+	case 1:
+	    out = "./out.ppm";
+	    file = stdin;
+	    break;
+	case 2:
+	    out = "./out.ppm";
+	    path = argv[1];
+	    file = fopen(path, "r");
+	    break;
+	case 3:
+	    out = argv[2];
+	    path = argv[1];
+	    file = fopen(path, "r");
+	    break;
+	default:
+	    fprintf(stderr, "use : %s\nuse : %s in.ipi\nuse : %s in.ipi out.ppm\n", argv[0], argv[0], argv[0]);
+	    exit(10);
+	    break;
 	}
-
     
     struct rlimit stacksize;
     stacksize.rlim_cur = RLIM_INFINITY; stacksize.rlim_max = RLIM_INFINITY;
 
     setrlimit(RLIMIT_STACK, &stacksize);
-    
-    char* path = argv[1];
-    char* out = "./out.ppm";
 
-    FILE *file = fopen(path, "r");
     if (file == NULL)
 	{
 	perror("fopen");
