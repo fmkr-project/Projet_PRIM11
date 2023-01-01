@@ -5,6 +5,16 @@ typedef struct layer
     pixel** pixs;
     } layer;
 
+// Debug functions
+void _spec(layer l, pos coords)
+// Flushs pixel data at given coords
+    {
+    pixel hl = l.pixs[coords.x][coords.y];
+    printf("Pixel at %d:%d : %d.%d.%d op%d\n", coords.x, coords.y, hl.col.r, hl.col.g, hl.col.b, hl.al); fflush(stdout);
+    }
+
+// Functions on layers
+
 layer blank(int n)
     {
     layer res;
@@ -27,27 +37,134 @@ layer blank(int n)
     return res;
     }
 
-void pline(layer *l, cstack cb, astack ab, pos coords0, pos coords1)
+void pline(layer* l, cstack cb, astack ab, pos coords0, pos coords1)
     {
     int delx = coords1.x - coords0.x;
     int dely = coords1.y - coords0.y;
     int d; int s; pixel avp;
     if (abs(delx) > abs(dely)) d = abs(delx); else d = abs(dely);
     if (delx*dely > 0) s = 0; else s = 1;
-
+    
     int x = coords0.x * d + (d-s)/2;
     int y = coords0.y * d + (d-s)/2;
+    avp = avpix(cb,ab);
     for (int hl = 0; hl<d; hl++)
 	{
-	avp = avpix(cb,ab);
-	(*l).pixs[x/d][y/d] = avp;
+	(*l).pixs[x/d][y/d].col = avp.col; (*l).pixs[x/d][y/d].al = avp.al;
 	x += delx;
 	y += dely;
 	}
-    avp = avpix(cb,ab);
     (*l).pixs[coords1.x][coords1.y] = avp;
     }
+
+// Position stack & fill procedure
+typedef struct pel* pstack;
+typedef struct pel
+    {
+    pos top;
+    pstack next;
+    } pel;
+
+pstack pnew(pos coords)
+    {
+    pstack res = malloc(sizeof(pel));
+    res->top = coords;
+    res->next = NULL;
+    return res;
+    }
+
+int plen(pstack ps)
+    {
+    int res = 0;
+    while (ps != NULL)
+	{
+	res++;
+	ps = ps->next;
+	}
+    return res;
+    }
+
+void ppush(pstack* ps, pos coords)
+    {
+    pstack hl = pnew(coords);
+    hl->top = coords;
+    hl->next = *ps;
+    *ps = hl;
+    }
+
+pos ppop(pstack* ps)
+    {
+    pos res;
+    if (*ps == NULL)
+	{
+	fprintf(stderr, "NOTICE: cannot pop from an empty stack. Defaulting to (0,0).");
+	res.x = 0; res.y = 0;
+	}
+    else
+	{
+	res = (*ps)->top;
+	*ps = (*ps)->next;
+	}
+    return res;
+    }
+
+void fill(pos coords, pixel oldpix, pixel newpix, layer* l)
+    {
+    pos next = coords;
     
+    if (peq(oldpix, newpix))
+	{
+	fprintf(stderr, "NOTICE: trying to fill with the same color.\n");
+	return;
+	}
+    if (peq((*l).pixs[coords.x][coords.y], oldpix) == 1)
+	{
+	(*l).pixs[coords.x][coords.y] = newpix;
+	if (coords.x > 0)
+	    {
+	    next.x--;
+	    // ppush(ps, next);
+	    fill(next, oldpix, newpix, l);
+	    next.x++;
+	    }
+	if (coords.y > 0)
+	    {
+	    next.y--;
+	    // ppush(ps, next);
+	    fill(next, oldpix, newpix, l);
+	    next.y++;
+	    }
+	if (coords.x < (*l).size - 1)
+	    {
+	    next.x++;
+	    // ppush(ps, next);
+	    fill(next, oldpix, newpix, l);
+	    next.x--;
+	    }
+	if (coords.y < (*l).size - 1)
+	    {
+	    next.y++;
+	    // ppush(ps, next);
+	    fill(next, oldpix, newpix, l);
+	    next.y--;
+	    }
+	}
+    }
+
+void fillall(pos coords, layer* l, cstack cb, astack ab)
+    {
+    pixel curpix = avpix(cb,ab);
+    /*pos todo;
+      pstack ps = pnew(coords);*/
+    fill(coords, (*l).pixs[coords.y][coords.x], curpix, l);
+    /*
+    while (ps != NULL)
+	{
+	todo = ppop(&ps);
+	(*l).pixs[todo.y][todo.x] = curpix;
+	}
+    */
+    }
 
 // Layer stacks
 typedef struct lel* lstack;
@@ -82,7 +199,7 @@ void ladd(lstack* ls, layer l, int size)
     {
     if (nofl(*ls) > 9)
 	{
-        printf("NOTICE: layer stack is full.\n");
+        fprintf(stderr, "NOTICE: layer stack is full.\n");
 	return;
 	}
     lstack hl = blankstack(size);
@@ -96,7 +213,7 @@ layer lpop(lstack* ls, int size)
     layer res;
     if (nofl(*ls) == 0)
 	{
-	printf("NOTICE: cannot pop from an empty layer stack. Defaulting to blank layer.");
+	fprintf(stderr, "NOTICE: cannot pop from an empty layer stack. Defaulting to blank layer.");
         res = blank(size);
 	}
     else
@@ -111,12 +228,14 @@ void lmerge(lstack* ls, int size)
     {
     if (nofl(*ls) < 2)
 	{
-	printf("NOTICE: cannot merge in a stack of length < 2.");
+	fprintf(stderr, "NOTICE: cannot merge in a stack of length < 2.");
 	return;
 	}
+    
     layer res = blank(size);
     layer upper = lpop(ls, size);
     layer lower = lpop(ls, size);
+    
     for (int i = 0; i < size; i++)
 	{
 	for (int j = 0; j < size; j++)
@@ -125,6 +244,31 @@ void lmerge(lstack* ls, int size)
 	    res.pixs[i][j].col.g = upper.pixs[i][j].col.g + lower.pixs[i][j].col.g * (255 - upper.pixs[i][j].al) / 255;
 	    res.pixs[i][j].col.b = upper.pixs[i][j].col.b + lower.pixs[i][j].col.b * (255 - upper.pixs[i][j].al) / 255;
 	    res.pixs[i][j].al = upper.pixs[i][j].al + lower.pixs[i][j].al * (255 - upper.pixs[i][j].al) / 255;
+	    }
+	}
+    ladd(ls, res, size);
+    }
+
+void lcut(lstack* ls, int size)
+    {
+    if (nofl(*ls) < 2)
+	{
+	fprintf(stderr, "NOTICE: cannot cut in a stack of length < 2.");
+	return;
+	}
+    
+    layer res = blank(size);
+    layer upper = lpop(ls, size); // c0
+    layer lower = lpop(ls, size); // c1
+
+    for (int i = 0; i < size; i++)
+	{
+	for (int j = 0; j < size; j++)
+	    {
+	    res.pixs[i][j].col.r = lower.pixs[i][j].col.r * upper.pixs[i][j].al / 255;
+	    res.pixs[i][j].col.g = lower.pixs[i][j].col.g * upper.pixs[i][j].al / 255;
+	    res.pixs[i][j].col.b = lower.pixs[i][j].col.b * upper.pixs[i][j].al / 255;
+	    res.pixs[i][j].al = lower.pixs[i][j].al * upper.pixs[i][j].al / 255;
 	    }
 	}
     ladd(ls, res, size);

@@ -135,8 +135,9 @@ void deop(astack *ab)
 // Pixel operations
 pixel avpix(cstack cb, astack ab)
     {
-    int avr = 0; int avg = 0; int avb = 0; int avo = 0;
-    int ccount = 0; int acount = 0;
+    long int avr, avg, avb, avo;
+    avr = 0; avg = 0; avb = 0; avo = 0;
+    long int ccount = 0; long int acount = 0;
 
     while (cb != NULL)
 	{
@@ -152,9 +153,24 @@ pixel avpix(cstack cb, astack ab)
 	}
     
     pixel res;
-    res.col.r = avr/ccount;
-    res.col.g = avg/ccount;
-    res.col.b = avb/ccount;
-    res.al = avo/acount;
+    if (acount != 0) res.al = avo/acount; else res.al = 255;
+    if (ccount != 0)
+	{
+	res.col.r = avr/ccount * res.al / 255;
+	res.col.g = avg/ccount * res.al / 255;
+	res.col.b = avb/ccount * res.al / 255;
+	}
+    else
+	{
+	res.col.r = 0;
+	res.col.g = 0;
+	res.col.b = 0;
+	}
     return res;
+    }
+
+int peq(pixel a, pixel b)
+    {
+    if ((a.col.r != b.col.r) || (a.col.g) != (b.col.g) || (a.col.b) != (b.col.b) || (a.al != b.al)) return 0;
+    return 1;
     }
