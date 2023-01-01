@@ -14,17 +14,20 @@ void _spec(layer l, pos coords)
     }
 
 // Functions on layers
-
 layer blank(int n)
+// @assigns a new layer
+// @ensures pixel data for all pixels is 0.0.0 op0
     {
     layer res;
     res.size = n;
 
+    // Memory allocation to layer contents
     pixel** pixs = NULL;
     pixs = (pixel**) malloc(res.size * sizeof(pixel*));
     for (int h = 0; h < res.size; h++)
 	pixs[h] = calloc(res.size, sizeof(pixel));
 
+    // Memory initialisation
     for (int i = 0; i < res.size; i++)
 	{
 	for (int j = 0; j < res.size; j++)
@@ -38,6 +41,8 @@ layer blank(int n)
     }
 
 void pline(layer* l, cstack cb, astack ab, pos coords0, pos coords1)
+// @requires coords0 and coords1 are valid for l's size
+// @ensures a line is drawn on l between coords0 and coords1
     {
     int delx = coords1.x - coords0.x;
     int dely = coords1.y - coords0.y;
@@ -58,6 +63,7 @@ void pline(layer* l, cstack cb, astack ab, pos coords0, pos coords1)
     }
 
 // Position stack & fill procedure
+/* UNUSED
 typedef struct pel* pstack;
 typedef struct pel
     {
@@ -107,8 +113,10 @@ pos ppop(pstack* ps)
 	}
     return res;
     }
+*/
 
 void fill(pos coords, pixel oldpix, pixel newpix, layer* l)
+// @requires coords is valid for l's size
     {
     pos next = coords;
     
@@ -152,6 +160,9 @@ void fill(pos coords, pixel oldpix, pixel newpix, layer* l)
     }
 
 void fillall(pos coords, layer* l, cstack cb, astack ab)
+// @requires coords is valid for l's size, l is a valid pointer to a stack
+// @ensures area from coords to same pixel boundary is filled with calculated avpix
+// NOTE: since fillall is only called by 'f', l is assumed to be never NULL
     {
     pixel curpix = avpix(cb,ab);
     /*pos todo;
@@ -187,6 +198,8 @@ int nofl(lstack ls)
     }
 
 lstack blankstack(int size)
+// @assigns a new layer stack
+// @ensures there is 1 blank layer in the new stack
     {
     layer bl = blank(size);
     lstack res = malloc(sizeof(lel));
@@ -196,6 +209,8 @@ lstack blankstack(int size)
     }
 
 void ladd(lstack* ls, layer l, int size)
+// @requires ls is a valid pointer to a layer stack
+// @ensures nofl(*ls)++ if there are <10 layers in the stack
     {
     if (nofl(*ls) > 9)
 	{
@@ -209,6 +224,8 @@ void ladd(lstack* ls, layer l, int size)
     }
 
 layer lpop(lstack* ls, int size)
+// @requires *ls is not empty
+// @ensures the returned layer is the top of *ls
     {
     layer res;
     if (nofl(*ls) == 0)
@@ -225,6 +242,8 @@ layer lpop(lstack* ls, int size)
     }
 
 void lmerge(lstack* ls, int size)
+// @requires *ls contains at least 2 layers
+// @ensures top 2 layers are merged
     {
     if (nofl(*ls) < 2)
 	{
@@ -250,6 +269,8 @@ void lmerge(lstack* ls, int size)
     }
 
 void lcut(lstack* ls, int size)
+// @requires *ls contains at least 2 layers
+// @ensures top layer cuts 2nd layer
     {
     if (nofl(*ls) < 2)
 	{

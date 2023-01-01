@@ -1,6 +1,7 @@
 #include <string.h>
 
 void export(char* path, lstack ls, int size)
+// @requires path is a valid path to an existing directory
     {
     FILE* out = fopen(path, "w");
     if (out == NULL)

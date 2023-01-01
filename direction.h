@@ -4,7 +4,7 @@
 typedef char dirn;
 
 void rot(dirn *d, char way)
-// @requires d is a valid pointer to a direction, way matches regex [ah]
+// @requires d is a valid pointer to a direction, way matches [ah]
 // @assigns d
 // @ensures the cursor rotates 90° clockwise or c/clockwise
     {
@@ -16,17 +16,13 @@ void rot(dirn *d, char way)
 	    switch (*d)
 		{
 		case 'N':
-		    *d = 'W';
-		    break;
+		    *d = 'W'; break;
 		case 'E':
-		    *d = 'N';
-		    break;
+		    *d = 'N'; break;
 		case 'S':
-		    *d = 'E';
-		    break;
+		    *d = 'E'; break;
 		default:
-		    *d = 'S';
-		    break;
+		    *d = 'S'; break;
 		};
 	    break;
 	case 'h':
@@ -34,17 +30,13 @@ void rot(dirn *d, char way)
 	    switch (*d)
 		{
 		case 'N':
-		    *d = 'E';
-		    break;
+		    *d = 'E'; break;
 		case 'E':
-		    *d = 'S';
-		    break;
+		    *d = 'S'; break;
 		case 'S':
-		    *d = 'W';
-		    break;
+		    *d = 'W'; break;
 		default:
-		    *d = 'N';
-		    break;
+		    *d = 'N'; break;
 		};
 	    break;
 	}

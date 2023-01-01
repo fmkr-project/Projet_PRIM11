@@ -42,13 +42,14 @@ void uniparse(char ltr, int size, pos* cur, pos* last, dirn* d, cstack* cb, asta
     if (ltr == 'e') lmerge(ls, size);
     if (ltr == 'j') lcut(ls, size);
     if (ltr == 'f') fillall(*cur, &((*ls)->top), *cb, *ab);
-    
+
     regfree(&expr);
     }
 
 void parse(char* line, int size, pos* cur, pos* last, dirn* d, cstack* cb, astack* ab, lstack* ls)
 // @requires line will not be freed
     {
+    // Parse letters until EOL
     while (*line != '\0')
 	{
 	uniparse(*line, size, cur, last, d, cb, ab, ls);
