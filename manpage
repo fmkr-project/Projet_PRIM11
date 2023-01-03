@@ -1,0 +1,33 @@
+.TH IIPIE 6 "2023-01-03" "ENSIIE" "PRIM11 22/23"
+.SH NAME
+iipie.bin \- parse .ipi files into .ppm images
+.SH SYNOPSIS
+iipie.bin
+.br
+iipie.bin [input.ipi]
+.br
+iipie.bin [input.ipi] [output.ppm]
+.SH DESCRIPTION
+iipie.bin converts valid .ipi files into .ppm files. An input file can be specified as an argument to the executable. If such a file is supplied, the path to an output file can also be specified as a second argument.
+
+If [output.ppm] is not specified, the result of this executable defaults to ./out.ppm.
+.br
+If [input.ipi] is not specified, the input of this executable is read on stdin.
+.SH OPTIONS
+None since I was too lazy.
+.SH EXAMPLES
+If foo.ipi is a valid .ipi file, the following commands output into ./out.ppm the image obtained by parsing ipi commands:
+.PP
+	iipie.bin < foo.ipi
+.br
+	iipie.bin foo.ipi
+.PP
+When an output path is specified, the input must also be given:
+.br
+
+	iipie.bin foo.ipi bar.ppm
+.br
+.SH BUGS
+Very large .ipi files / image sizes might cause the system to crash. As such large files were not tested at the time of writing of this man page, any feedback on the behaviour of the machine when the input .ipi file starts with a number greater than 10,000 would be appreciated.
+.SH LICENCE
+Oh wait.
